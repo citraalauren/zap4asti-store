@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Заказы — Админ-панель{% endblock %}
+{% block content %}
+<div class="admin-layout" data-aos="fade-up">
+  <nav class="admin-sidebar">
+    <a href="{{ url_for('admin.dashboard') }}">Дашборд</a>
+    <a href="{{ url_for('admin.products') }}">Товары</a>
+    <a href="{{ url_for('admin.orders') }}" class="is-active">Заказы</a>
+    <a href="{{ url_for('admin.reviews') }}">Отзывы</a>
+  </nav>
+  <div class="admin-content">
+    <h1>Заказы</h1>
+    {% if orders %}
+    <div class="table-scroll">
+      <table class="admin-table">
+        <thead>
+          <tr><th>№</th><th>Покупатель</th><th>Адрес</th><th>Телефон</th><th>Сумма</th><th>Статус</th><th>Дата</th></tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.user_name }}<br><small>{{ order.user_email }}</small></td>
+            <td>{{ order.address }}</td>
+            <td>{{ order.phone }}</td>
+            <td>{{ order.total|price }} ₽</td>
+            <td>
+              <form method="post" action="{{ url_for('admin.update_order_status', order_id=order.id) }}" class="status-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <select name="status" class="js-auto-submit">
+                  {% for status in statuses %}
+                  <option value="{{ status }}" {{ 'selected' if status == order.status else '' }}>{{ status }}</option>
+                  {% endfor %}
+                </select>
+              </form>
+            </td>
+            <td>{{ order.created_at }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="hint">Заказов пока нет.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

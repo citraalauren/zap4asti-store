@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Товары — Админ-панель{% endblock %}
+{% block content %}
+<div class="admin-layout" data-aos="fade-up">
+  <nav class="admin-sidebar">
+    <a href="{{ url_for('admin.dashboard') }}">Дашборд</a>
+    <a href="{{ url_for('admin.products') }}" class="is-active">Товары</a>
+    <a href="{{ url_for('admin.orders') }}">Заказы</a>
+    <a href="{{ url_for('admin.reviews') }}">Отзывы</a>
+  </nav>
+  <div class="admin-content">
+    <div class="admin-content__header">
+      <h1>Товары</h1>
+      <a href="{{ url_for('admin.add_product') }}" class="btn btn-primary">+ Добавить товар</a>
+    </div>
+
+    {% if products %}
+    <div class="table-scroll">
+      <table class="admin-table">
+        <thead>
+          <tr><th>Фото</th><th>Название</th><th>Категория</th><th>Цена</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+          {% set img_url = product_image_url(product.image) %}
+          <tr>
+            <td class="admin-table__image">
+              {% if img_url %}
+                <img src="{{ img_url }}" alt="{{ product.name }}" loading="lazy">
+              {% else %}
+                <span class="no-image">—</span>
+              {% endif %}
+            </td>
+            <td>{{ product.name }}</td>
+            <td>{{ CATEGORIES[product.category] }}</td>
+            <td>{{ product.price|price }} ₽</td>
+            <td class="admin-table__actions">
+              <a href="{{ url_for('admin.edit_product', product_id=product.id) }}" class="btn btn-outline btn-sm">Изменить</a>
+              <form method="post" action="{{ url_for('admin.delete_product', product_id=product.id) }}"
+                    class="js-confirm" data-confirm="Удалить товар «{{ product.name }}»?">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="hint">Товаров пока нет.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

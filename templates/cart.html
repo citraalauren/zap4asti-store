@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Корзина — Zap4asti Store{% endblock %}
+{% block content %}
+
+<h1 data-aos="fade-up">Корзина</h1>
+
+{% if items %}
+<div class="cart-list" data-aos="fade-up">
+  {% for item in items %}
+  {% set img_url = product_image_url(item.image) %}
+  <div class="cart-item">
+    <div class="cart-item__image">
+      {% if img_url %}
+        <img src="{{ img_url }}" alt="{{ item.name }}" loading="lazy">
+      {% else %}
+        <span class="no-image">Нет фото</span>
+      {% endif %}
+    </div>
+    <div class="cart-item__info">
+      <a href="{{ url_for('main.product_detail', product_id=item.product_id) }}" class="cart-item__name">{{ item.name }}</a>
+      <p class="cart-item__price">{{ item.price|price }} ₽</p>
+    </div>
+    <form class="cart-item__quantity" method="post" action="{{ url_for('cart.update', product_id=item.product_id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="99" aria-label="Количество">
+      <button type="submit" class="btn btn-outline">Обновить</button>
+    </form>
+    <p class="cart-item__subtotal">{{ item.subtotal|price }} ₽</p>
+    <form method="post" action="{{ url_for('cart.remove', product_id=item.product_id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="icon-btn cart-item__remove" aria-label="Удалить товар">✕</button>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="cart-summary" data-aos="fade-up">
+  <p class="cart-summary__total">Итого: <strong>{{ total|price }} ₽</strong></p>
+  <a href="{{ url_for('orders.checkout') }}" class="btn btn-primary">Оформить заказ</a>
+</div>
+
+{% else %}
+<p class="empty-state">Ваша корзина пуста. <a href="{{ url_for('main.index') }}">Перейти в каталог</a></p>
+{% endif %}
+
+{% endblock %}

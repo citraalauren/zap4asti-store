@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Оплата заказа — Zap4asti Store{% endblock %}
+{% block content %}
+
+<div class="payment-page" data-aos="fade-up">
+  <div class="payment-card">
+    <div class="payment-card__brand">Zap4asti Pay</div>
+    <p class="payment-card__demo-notice">
+      Демо-оплата учебного проекта — реальное списание денег не производится,
+      можно ввести любые данные карты.
+    </p>
+
+    <p class="payment-card__amount">К оплате: <strong>{{ order.total|price }} ₽</strong></p>
+    <p class="payment-card__order">Заказ №{{ order.id }}</p>
+
+    <div class="payment-tabs">
+      <button type="button" class="payment-tabs__btn is-active" data-tab="card">Банковская карта</button>
+      <button type="button" class="payment-tabs__btn" data-tab="sbp">СБП (по QR-коду)</button>
+    </div>
+
+    <form method="post" action="{{ url_for('orders.confirm_payment', order_id=order.id) }}" id="payment-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="payment-tab-panel" data-panel="card">
+        <label>Номер карты
+          <input type="text" id="card-number" inputmode="numeric" placeholder="0000 0000 0000 0000" maxlength="19" autocomplete="off">
+        </label>
+        <div class="payment-card__row">
+          <label>Срок действия
+            <input type="text" id="card-expiry" placeholder="ММ/ГГ" maxlength="5" autocomplete="off">
+          </label>
+          <label>CVV
+            <input type="text" id="card-cvv" inputmode="numeric" placeholder="000" maxlength="3" autocomplete="off">
+          </label>
+        </div>
+        <label>Имя держателя карты
+          <input type="text" id="card-holder" placeholder="IVAN IVANOV" autocomplete="off">
+        </label>
+      </div>
+
+      <div class="payment-tab-panel" data-panel="sbp" hidden>
+        <div class="payment-qr">
+          <div class="payment-qr__box">QR</div>
+          <p class="hint">Отсканируйте код в приложении вашего банка. (В демо-режиме кнопка ниже сразу подтверждает оплату.)</p>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-pay" id="pay-submit-btn">
+        Оплатить {{ order.total|price }} ₽
+      </button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

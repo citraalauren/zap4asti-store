@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Оформление заказа — Zap4asti Store{% endblock %}
+{% block content %}
+
+<h1 data-aos="fade-up">Оформление заказа</h1>
+
+<div class="checkout-layout" data-aos="fade-up">
+  <div class="checkout-main">
+    <form method="post" class="checkout-form" id="checkout-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <fieldset class="delivery-type">
+        <legend>Способ получения</legend>
+        <label class="delivery-type__option">
+          <input type="radio" name="delivery_type" value="courier" checked>
+          Курьером по адресу
+        </label>
+        <label class="delivery-type__option">
+          <input type="radio" name="delivery_type" value="pickup">
+          В пункт выдачи (СДЭК, 5Post, Яндекс Маркет, Boxberry)
+        </label>
+      </fieldset>
+
+      <div id="courier-fields">
+        <label>Адрес доставки
+          <textarea name="address" rows="2" placeholder="Улица, дом, квартира"></textarea>
+        </label>
+      </div>
+
+      <div id="pickup-fields" hidden>
+        <label>Служба доставки
+          <select name="delivery_provider" id="delivery-provider">
+            <option value="">Выберите службу</option>
+            {% for slug, name in providers.items() %}
+            <option value="{{ slug }}">{{ name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>Город
+          <select name="delivery_city" id="delivery-city" disabled>
+            <option value="">Сначала выберите службу</option>
+          </select>
+        </label>
+        <label>Пункт выдачи
+          <select name="delivery_point" id="delivery-point" disabled>
+            <option value="">Сначала выберите город</option>
+          </select>
+        </label>
+        <p class="hint">Показан ограниченный список реальных пунктов выдачи для Москвы (демо-набор, не полный справочник службы).</p>
+      </div>
+
+      <label>Телефон
+        <input type="tel" name="phone" placeholder="+7 900 000-00-00" required>
+      </label>
+      <label>Комментарий к заказу
+        <textarea name="comment" rows="2" placeholder="Необязательно"></textarea>
+      </label>
+      <button type="submit" class="btn btn-primary">Продолжить к оплате</button>
+    </form>
+  </div>
+
+  <aside class="checkout-summary">
+    <h2>Ваш заказ</h2>
+    <ul class="checkout-summary__list">
+      {% for item in items %}
+      <li>{{ item.name }} × {{ item.quantity }} <span>{{ item.subtotal|price }} ₽</span></li>
+      {% endfor %}
+    </ul>
+    <p class="checkout-summary__total">Итого: <strong>{{ total|price }} ₽</strong></p>
+  </aside>
+</div>
+
+{% endblock %}

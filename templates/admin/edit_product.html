@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Изменить товар' if product else 'Добавить товар' }} — Админ-панель{% endblock %}
+{% block content %}
+<div class="admin-layout" data-aos="fade-up">
+  <nav class="admin-sidebar">
+    <a href="{{ url_for('admin.dashboard') }}">Дашборд</a>
+    <a href="{{ url_for('admin.products') }}" class="is-active">Товары</a>
+    <a href="{{ url_for('admin.orders') }}">Заказы</a>
+    <a href="{{ url_for('admin.reviews') }}">Отзывы</a>
+  </nav>
+  <div class="admin-content">
+    <h1>{{ 'Изменить товар' if product else 'Добавить товар' }}</h1>
+
+    <form method="post" enctype="multipart/form-data" class="product-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <label>Название
+        <input type="text" name="name" value="{{ values.name }}" required>
+      </label>
+
+      <label>Категория
+        <select name="category" required>
+          <option value="" {{ 'selected' if not values.category else '' }} disabled>Выберите категорию</option>
+          {% for slug, label in categories.items() %}
+          <option value="{{ slug }}" {{ 'selected' if values.category == slug else '' }}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>Цена, ₽
+        <input type="number" name="price" value="{{ values.price }}" min="0" step="1" required>
+      </label>
+
+      <label>Описание
+        <textarea name="description" rows="4">{{ values.description }}</textarea>
+      </label>
+
+      <label>Главное фото (обложка) {% if product %}(оставьте пустым, чтобы не менять){% endif %}
+        <input type="file" name="image" accept=".png,.jpg,.jpeg,.webp,.gif">
+      </label>
+
+      {% if product %}
+        {% set img_url = product_image_url(product.image) %}
+        {% if img_url %}
+        <div class="product-form__preview">
+          <span>Текущая обложка:</span>
+          <img src="{{ img_url }}" alt="{{ product.name }}">
+        </div>
+        {% endif %}
+      {% endif %}
+
+      <label>Дополнительные фото (можно выбрать сразу несколько файлов)
+        <input type="file" name="images" accept=".png,.jpg,.jpeg,.webp,.gif" multiple>
+      </label>
+
+      <div class="product-form__actions">
+        <button type="submit" class="btn btn-primary">{{ 'Сохранить' if product else 'Добавить' }}</button>
+        <a href="{{ url_for('admin.products') }}" class="btn btn-outline">Отмена</a>
+      </div>
+    </form>
+
+    {% if product and gallery %}
+    <div class="product-gallery-admin">
+      <h2>Дополнительные фото товара</h2>
+      <div class="product-gallery-admin__grid">
+        {% for photo in gallery %}
+        <div class="product-gallery-admin__item">
+          <img src="{{ product_image_url(photo.image) }}" alt="{{ product.name }}">
+          <form method="post"
+                action="{{ url_for('admin.delete_gallery_image', product_id=product.id, image_id=photo.id) }}"
+                class="js-confirm" data-confirm="Удалить это фото?">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+          </form>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

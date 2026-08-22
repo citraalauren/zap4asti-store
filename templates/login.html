@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Вход — Zap4asti Store{% endblock %}
+{% block content %}
+
+<div class="auth-page" data-aos="fade-up">
+  <form method="post" class="auth-form">
+    <h1>Вход</h1>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label>Email
+      <input type="email" name="email" value="{{ email }}" required autofocus>
+    </label>
+    <label>Пароль
+      <input type="password" name="password" required>
+    </label>
+    <button type="submit" class="btn btn-primary">Войти</button>
+    <p class="auth-form__hint">Нет аккаунта? <a href="{{ url_for('auth.register') }}">Зарегистрироваться</a></p>
+  </form>
+</div>
+
+{% endblock %}

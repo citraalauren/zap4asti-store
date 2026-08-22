@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }} — Zap4asti Store{% endblock %}
+{% block content %}
+
+<div class="product-detail" data-aos="fade-up">
+  <div class="product-detail__media">
+    <div class="product-detail__image" id="product-main-image">
+      {% if image_urls %}
+        <img src="{{ image_urls[0] }}" alt="{{ product.name }}" loading="lazy">
+      {% else %}
+        <span class="no-image no-image--large">Нет фото</span>
+      {% endif %}
+    </div>
+    {% if image_urls|length > 1 %}
+    <div class="product-detail__thumbs">
+      {% for url in image_urls %}
+      <button type="button" class="product-detail__thumb {{ 'is-active' if loop.first else '' }}"
+              data-full-src="{{ url }}">
+        <img src="{{ url }}" alt="{{ product.name }} — фото {{ loop.index }}" loading="lazy">
+      </button>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  <div class="product-detail__info">
+    <span class="product-card__category">{{ CATEGORIES[product.category] }}</span>
+    <h1>{{ product.name }}</h1>
+    <div class="rating-summary">
+      {% for i in range(1, 6) %}
+        <span class="star {{ 'star--filled' if i <= (avg_rating|round(0, 'floor')) else '' }}">★</span>
+      {% endfor %}
+      <span class="rating-summary__text">{{ avg_rating }} ({{ review_count }} {{ review_count|review_word }})</span>
+    </div>
+    <p class="product-detail__price">{{ product.price|price }} ₽</p>
+    <p class="product-detail__description">{{ product.description }}</p>
+    <button type="button" class="btn btn-add-cart btn-add-cart--large"
+            data-product-id="{{ product.id }}" data-product-name="{{ product.name }}">
+      В корзину
+    </button>
+  </div>
+</div>
+
+<section class="reviews" data-aos="fade-up">
+  <h2>Отзывы {% if review_count %}({{ review_count }}){% endif %}</h2>
+
+  {% if can_review %}
+  <form class="review-form" method="post" action="{{ url_for('main.add_review', product_id=product.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <fieldset class="star-rating">
+      <legend>Ваша оценка</legend>
+      {% for i in range(5, 0, -1) %}
+      <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" required>
+      <label for="star{{ i }}" title="{{ i }}">★</label>
+      {% endfor %}
+    </fieldset>
+    <textarea name="text" rows="3" placeholder="Поделитесь впечатлением о товаре..." required></textarea>
+    <button type="submit" class="btn">Оставить отзыв</button>
+  </form>
+  {% elif current_user.is_authenticated %}
+    <p class="hint">Оставить отзыв может только покупатель этого товара (после оплаченного заказа).</p>
+  {% else %}
+    <p class="hint"><a href="{{ url_for('auth.login') }}">Войдите</a>, чтобы оставить отзыв после покупки.</p>
+  {% endif %}
+
+  {% if reviews %}
+  <div class="review-list">
+    {% for review in reviews %}
+    <div class="review-card">
+      <div class="review-card__header">
+        <strong>{{ review.user_name }}</strong>
+        <span class="review-card__stars">
+          {% for i in range(1, 6) %}{{ '★' if i <= review.rating else '☆' }}{% endfor %}
+        </span>
+      </div>
+      <p>{{ review.text }}</p>
+      <span class="review-card__date">{{ review.created_at }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="hint">Пока нет отзывов — станьте первым!</p>
+  {% endif %}
+</section>
+{% endblock %}

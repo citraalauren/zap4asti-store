@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Заказ оформлен — Zap4asti Store{% endblock %}
+{% block content %}
+
+<div class="order-success" data-aos="zoom-in">
+  <div class="order-success__icon">✅</div>
+  <h1>Спасибо за заказ!</h1>
+  <p>Номер вашего заказа: <strong>№{{ order.id }}</strong></p>
+  <p class="badge badge--{{ order.status|status_class }}">{{ order.status }}</p>
+
+  <div class="order-success__items">
+    {% for item in items %}
+    <div class="order-success__item">
+      <span>{{ item.product_name }} × {{ item.quantity }}</span>
+      <span>{{ (item.price * item.quantity)|price }} ₽</span>
+    </div>
+    {% endfor %}
+  </div>
+  <p class="order-success__total">Итого: <strong>{{ order.total|price }} ₽</strong></p>
+
+  <div class="order-success__actions">
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Вернуться в каталог</a>
+    <a href="{{ url_for('auth.profile') }}" class="btn btn-outline">Мои заказы</a>
+  </div>
+</div>
+
+{% endblock %}
